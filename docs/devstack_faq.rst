@@ -97,7 +97,7 @@ To rebuild static assets for all service containers:
 
 .. code:: sh
 
-   make dev.static
+   make dev.static.large-and-slow
 
 How do I enable comprehensive theming?
 --------------------------------------
@@ -186,7 +186,7 @@ To run migrations for all services at once, run:
 .. code:: sh
 
    make dev.up.large-and-slow
-   make dev.migrate
+   make dev.migrate.large-and-slow
 
 Alternatively, you can discard and rebuild the entire database for all
 devstack services by re-running ``make dev.provision.<service>`` or

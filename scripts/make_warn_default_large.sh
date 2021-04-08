@@ -27,7 +27,7 @@ The command "make $target" will operate on a large default set of
 services and their dependencies. This can make your task take longer
 than necessary.
 
-You may prefer to use something like "make $target.lms" to
+You may prefer to use something like "make $target.lms+redis" to
 target a smaller set of services.  Learn more about the commands you
 can run at:
 

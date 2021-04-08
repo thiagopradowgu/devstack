@@ -216,7 +216,10 @@ dev.pull.without-deps.%: ## Pull latest Docker images for specific services.
 # Developer interface: Database management.
 ########################################################################################
 
-dev.provision: dev.check-memory ## Provision dev environment with default services, and then stop them.
+dev.provision:
+	@scripts/make_warn_default_large.sh "$@"
+
+dev.provision.large-and-slow: dev.check-memory ## Provision dev environment with default services, and then stop them.
 	# We provision all default services as well as 'e2e' (end-to-end tests).
 	# e2e is not part of `DEFAULT_SERVICES` because it isn't a service;
 	# it's just a way to tell ./provision.sh that the fake data for end-to-end
@@ -250,7 +253,11 @@ $(foreach db_service,$(DB_SERVICES_LIST),\
 	$(if $(filter $(db_service), $(DEFAULT_SERVICES_LIST)),\
 		dev.migrate.$(db_service)))
 
-dev.migrate: | $(_db_migration_targets) ## Run migrations for applicable default services.
+dev.migrate:
+	@scripts/make_warn_default_large.sh "$@"
+
+dev.migrate.large-and-slow: | $(_db_migration_targets) ## Run migrations for applicable default services.
+	@echo # at least one statement so that dev.migrate.% doesn't run too
 
 dev.migrate.studio:
 	docker-compose exec studio bash -c 'source /edx/app/edxapp/edxapp_env && cd /edx/app/edxapp/edx-platform/ && paver update_db'
@@ -364,7 +371,11 @@ dev.check-memory: ## Check if enough memory has been allocated to Docker.
 dev.stats: ## Get per-container CPU and memory utilization data.
 	docker stats --format "table {{.Name}}\t{{.CPUPerc}}\t{{.MemUsage}}"
 
-dev.check: dev.check.$(DEFAULT_SERVICES) ## Run checks for the default service set.
+dev.check:
+	@scripts/make_warn_default_large.sh "$@"
+
+dev.check.large-and-slow: dev.check.$(DEFAULT_SERVICES) ## Run checks for the default service set.
+	@echo # at least one statement so that dev.check.% doesn't run too
 
 dev.check.%:  # Run checks for a given service or set of services.
 	$(WINPTY) bash ./check.sh $*
@@ -454,7 +465,11 @@ $(foreach asset_service,$(ASSET_SERVICES_LIST),\
 	$(if $(filter $(asset_service), $(DEFAULT_SERVICES_LIST)),\
 		dev.static.$(asset_service)))
 
-dev.static: | $(_asset_compilation_targets)
+dev.static:
+	@scripts/make_warn_default_large.sh "$@"
+
+dev.static.large-and-slow: | $(_asset_compilation_targets)
+	@echo # at least one statement so that dev.static.% doesn't run too
 
 dev.static.lms:
 	docker-compose exec lms bash -c 'source /edx/app/edxapp/edxapp_env && cd /edx/app/edxapp/edx-platform/ && paver update_assets lms'
@@ -470,8 +485,17 @@ dev.static.%: ## Rebuild static assets for the specified service's container.
 # Developer interface: Commands that do a combination of things.
 ########################################################################################
 
+dev.reset: dev.reset.large-and-slow ## Do dev.reset.% for the majority of services
+	@echo # at least one statement so that dev.reset.% isn't run twice
 
-dev.reset: dev.down dev.reset-repos dev.pull.large-and-slow dev.up.large-and-slow dev.static dev.migrate ## Attempt to reset the local devstack to the master working state without destroying data.
+dev.reset.%: ## Attempt to reset the local devstack to the master working state without destroying data.
+	# These can't be just marked as dependencies -- make doesn't like multiple "$*" there
+	make dev.down
+	make dev.reset-repos
+	make dev.pull.$*
+	make dev.up.$*
+	make dev.static.$*
+	make dev.migrate.$*
 
 dev.destroy: ## Irreversibly remove all devstack-related containers, networks, and volumes.
 	$(WINPTY) bash ./destroy.sh

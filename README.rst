@@ -122,7 +122,6 @@ Directions to setup devstack
 The default devstack services can be run by following the steps below.
 
 **Note:** This will set up a large number of services, more than you are likely to need to work with, but that's only necessary for first-time provisioning. See `Service List`_ and the `most common development workflow`_ for how to run and update devstack with just the services you need, rather than the ``large-and-slow`` default set.
-
 1. Install the requirements inside of a `Python virtualenv`_.
 
    .. code:: sh
@@ -183,7 +182,7 @@ The default devstack services can be run by following the steps below.
 
    .. code:: sh
 
-       make dev.provision
+       make dev.provision.large-and-slow
 
    Provision using `docker-sync`_:
 
@@ -305,7 +304,7 @@ as well as links to the repository where each service's code lives.
 
 Most developers will be best served by working with specific combinations of these services, for example ``make dev.pull.studio`` or ``make dev.up.ecommerce``. These will pull in dependencies as needed—starting ecommerce will also start lms, and lms will pull in forums, discovery, and others. If you need multiple, they can be listed like ``make dev.up.studio+ecommerce``. After the service table below there is a list of some common combinations.
 
-Instead of a service name or list, you can also run commands like ``make dev.provision`` / ``make dev.pull.large-and-slow`` / ``make dev.up.large-and-slow``. This is a larger list than most people will need for most of their work, and includes all of the services marked "Default" in the below table. (Some of these targets use ``large-and-slow`` in their name as a warning; others may be changed to use this over time.) However, you can change this list by modifying the ``DEFAULT_SERVICES`` option as described in the `Advanced Configuration Options`_ section.
+Instead of a service name or list, you can also run commands like ``make dev.provision.large-and-slow`` / ``make dev.pull.large-and-slow`` / ``make dev.up.large-and-slow``. This is a larger list than most people will need for most of their work, and includes all of the services marked "Default" in the below table.  However, you can change this list by modifying the ``DEFAULT_SERVICES`` option as described in the `Advanced Configuration Options`_ section.
 
 +------------------------------------+-------------------------------------+----------------+--------------+
 | Service                            | URL                                 | Type           | Role         |
@@ -342,7 +341,6 @@ Instead of a service name or list, you can also run commands like ``make dev.pro
 +------------------------------------+-------------------------------------+----------------+--------------+
 | `xqueue`_                          | http://localhost:18040/api/v1/      | Python/Django  | Extra        |
 +------------------------------------+-------------------------------------+----------------+--------------+
-
 Some common service combinations include:
 
 * ``lms``: LMS, along with dependencies ``forum``, ``discovery``, and some databases
